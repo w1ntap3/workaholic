@@ -1,5 +1,5 @@
 # ---- Build output (CMakePresets: build/<preset>) ----
-/build/
+**/build/
 cmake-build-*/
 compile_commands.json
 CMakeUserPresets.json
@@ -15,18 +15,20 @@ CMakeUserPresets.json
 *.lst
 
 # ---- IAR (EWARM) generated output ----
-EWARM/Debug/
-EWARM/Release/
-EWARM/settings/
-EWARM/**/Obj/
-EWARM/**/List/
-EWARM/**/Exe/
+**/EWARM/Debug/
+**/EWARM/Release/
+**/EWARM/settings/
+**/EWARM/**/Obj/
+**/EWARM/**/List/
+**/EWARM/**/Exe/
 *.dep
 
 # ---- Language-server / editor cache ----
 .cache/
-.vscode/ipch/
-.vscode/.browse.*
+**/.vscode/ipch/
+**/.vscode/.browse.*
+
+cli/workaholic
 
 # ---- OS / editor junk ----
 .DS_Store
