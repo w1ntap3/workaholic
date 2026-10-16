@@ -1,7 +1,0 @@
-Core/Src/stm32g4xx_it.c:70:NMI_Handler	0	static
-Core/Src/stm32g4xx_it.c:85:HardFault_Handler	0	static
-Core/Src/stm32g4xx_it.c:100:MemManage_Handler	0	static
-Core/Src/stm32g4xx_it.c:115:BusFault_Handler	0	static
-Core/Src/stm32g4xx_it.c:130:UsageFault_Handler	0	static
-Core/Src/stm32g4xx_it.c:145:DebugMon_Handler	0	static
-Core/Src/stm32g4xx_it.c:165:TIM1_UP_TIM16_IRQHandler	0	static

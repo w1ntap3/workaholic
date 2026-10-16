@@ -1,4 +1,0 @@
-Middlewares/ST/threadx/utility/low_power/tx_low_power.c:85:tx_low_power_enter	0	static
-Middlewares/ST/threadx/utility/low_power/tx_low_power.c:206:tx_low_power_exit	0	static
-Middlewares/ST/threadx/utility/low_power/tx_low_power.c:413:tx_time_increment	40	static
-Middlewares/ST/threadx/utility/low_power/tx_low_power.c:287:tx_timer_get_next	28	static

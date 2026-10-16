@@ -1,0 +1,35 @@
+# ---- Build output (CMakePresets: build/<preset>) ----
+/build/
+cmake-build-*/
+compile_commands.json
+CMakeUserPresets.json
+
+# ---- Compiled artifacts (loose, outside build/) ----
+*.o
+*.obj
+*.su
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+
+# ---- IAR (EWARM) generated output ----
+EWARM/Debug/
+EWARM/Release/
+EWARM/settings/
+EWARM/**/Obj/
+EWARM/**/List/
+EWARM/**/Exe/
+*.dep
+
+# ---- Language-server / editor cache ----
+.cache/
+.vscode/ipch/
+.vscode/.browse.*
+
+# ---- OS / editor junk ----
+.DS_Store
+Thumbs.db
+*.swp
+*~

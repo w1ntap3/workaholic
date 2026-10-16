@@ -1,4 +1,0 @@
-Core/Src/main.c:66:main	80	static
-Core/Src/main.c:127:SystemClock_Config	96	static
-Core/Src/main.c:248:Error_Handler	0	static
-Core/Src/main.c:206:HAL_TIM_PeriodElapsedCallback	0	static
