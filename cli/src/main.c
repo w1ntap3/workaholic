@@ -23,13 +23,14 @@ int cli_health(int argc, char *argv[]);
 int cli_version(int argc, char *argv[]);
 int get_firmware_version(char *firmware_version, int buf);
 cli_ret_t get_protocol_version(char *protocol_version, int buf);
+static void help_util(void);
 // PF (end)
 
 // PV (start)
 static const struct {
   const char *cmd_name;
   int (*cmd_handler)(int, char **);
-} cmd_table[] = {{"health", cli_health}, {"version", cli_version}};
+} cmd_table[] = {{"health", cli_health}};
 // PV (end)
 
 // static const struct commands
@@ -40,11 +41,12 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   // Global help
-  if (strcmp(argv[1], "--help") == 0) {
-    printf("You can use a lot of commands\n");
+  if ((strcmp(argv[1], "--help") == 0) || (strcmp(argv[1], "help") == 0)) {
+    help_util();
     return 0;
   }
-  if (strcmp(argv[1], "--version") == 0) {
+  if ((strcmp(argv[1], "--version") == 0) ||
+      (strcmp(argv[1], "version") == 0)) {
     return cli_version(argc, argv);
   }
 
@@ -80,6 +82,7 @@ int cli_version(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
 
+  int version_ret = 0;
   printf("CLI version: %s\n", CLI_VERSION);
 
   // Request the firmware version from the MCU
@@ -89,6 +92,7 @@ int cli_version(int argc, char *argv[]) {
     printf("Firmware version: %s\n", firmware_version);
   } else {
     printf("Firmware version: Failed to retrieve.\n");
+    version_ret++;
   }
 
   // Compare the assumed protocol version of the CLI vs MCU's
@@ -100,15 +104,17 @@ int cli_version(int argc, char *argv[]) {
     break;
   case PROTOCOL_VERSION_FAIL:
     printf("Protocol version: Failed to retrieve.\n");
+    version_ret++;
     break;
   case PROTOCOL_VERSION_CLASH:
     printf("Protocol version: Clash occured. CLI claims \"%s\" while MCU "
            "claims \"%s\"\n",
            CLI_PROTOCOL_VERSION, protocol_version);
+    version_ret++;
     break;
   }
 
-  return 0;
+  return version_ret;
 }
 
 // TODO: implement firmware version request
@@ -123,4 +129,30 @@ cli_ret_t get_protocol_version(char *protocol_version, int buf) {
   (void)protocol_version;
   (void)buf;
   return PROTOCOL_VERSION_FAIL;
+}
+
+static void help_util(void) {
+  printf("Usage: workaholic <command> [options]\n"
+         "\n"
+         "  status [peripheral]                        Show connection, "
+         "uptime and peripheral health;\n"
+         "                                             or details for a single "
+         "peripheral\n"
+         "  update <peripheral> --<parameter> <value>  Update a peripheral's "
+         "settings (e.g. --name, --min, --max)\n"
+         "  watch                                      Stream peripheral "
+         "events until interrupted\n"
+         "  log [count]                                Show the last [count] "
+         "logged events\n"
+         "  --version                                  Show CLI, firmware and "
+         "protocol versions\n"
+         "  --help                                     Show this message\n"
+         "\n"
+         "Examples:\n"
+         "  workaholic status\n"
+         "  workaholic status temp\n"
+         "  workaholic update temp --min 0 --max 100 --name \"Temperature "
+         "Sensor\"\n"
+         "  workaholic watch\n"
+         "  workaholic log 2\n");
 }
