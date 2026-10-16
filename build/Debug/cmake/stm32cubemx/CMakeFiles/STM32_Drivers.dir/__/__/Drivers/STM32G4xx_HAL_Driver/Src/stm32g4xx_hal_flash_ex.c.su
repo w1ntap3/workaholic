@@ -1,0 +1,9 @@
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c:138:HAL_FLASHEx_Erase	32	static
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c:582:FLASH_PageErase	0	static
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c:620:FLASH_FlushCaches	0	static
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c:237:HAL_FLASHEx_Erase_IT	0	static
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c:310:HAL_FLASHEx_OBProgram	32	static
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c:399:HAL_FLASHEx_OBGetConfig	0	static
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c:459:HAL_FLASHEx_EnableSecMemProtection	0	static
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c:497:HAL_FLASHEx_EnableDebugger	0	static
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c:509:HAL_FLASHEx_DisableDebugger	0	static

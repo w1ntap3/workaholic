@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/wintape/javid/repos/nucleo/build/Debug/cmake_install.cmake",
+		"/home/wintape/javid/repos/nucleo/build/Debug/cmake/stm32cubemx/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
