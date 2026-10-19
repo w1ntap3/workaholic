@@ -19,18 +19,28 @@ typedef enum {
 // DEFINES (end)
 
 // PF (start)
-int cli_health(int argc, char *argv[]);
-int cli_version(int argc, char *argv[]);
+int cli_health(int argc);
+
+int cli_version(void);
 int get_firmware_version(char *firmware_version, int buf);
 cli_ret_t get_protocol_version(char *protocol_version, int buf);
-static void help_util(void);
+
+static inline void help_util(void);
+
+int cli_status(int argc, char *argv[]);
+int cli_update(int argc, char *argv[]);
+int cli_watch(int argc, char *argv[]);
+int cli_log(int argc, char *argv[]);
 // PF (end)
 
 // PV (start)
 static const struct {
   const char *cmd_name;
   int (*cmd_handler)(int, char **);
-} cmd_table[] = {{"health", cli_health}};
+} cmd_table[] = {{"status", cli_status},
+                 {"update", cli_update},
+                 {"watch", cli_watch},
+                 {"log", cli_log}};
 // PV (end)
 
 // static const struct commands
@@ -47,7 +57,10 @@ int main(int argc, char *argv[]) {
   }
   if ((strcmp(argv[1], "--version") == 0) ||
       (strcmp(argv[1], "version") == 0)) {
-    return cli_version(argc, argv);
+    return cli_version();
+  }
+  if (strcmp(argv[1], "health") == 0) {
+    return cli_health(argc);
   }
 
   const char *cmd = argv[1];
@@ -66,9 +79,7 @@ int main(int argc, char *argv[]) {
   return 1;
 }
 
-int cli_health(int argc, char *argv[]) {
-  (void)argv;
-
+int cli_health(int argc) {
   if (argc >= 0) {
     printf("workaholic cli is working.\n");
     return 0;
@@ -78,10 +89,7 @@ int cli_health(int argc, char *argv[]) {
   }
 }
 
-int cli_version(int argc, char *argv[]) {
-  (void)argc;
-  (void)argv;
-
+int cli_version(void) {
   int version_ret = 0;
   printf("CLI version: %s\n", CLI_VERSION);
 
@@ -131,7 +139,31 @@ cli_ret_t get_protocol_version(char *protocol_version, int buf) {
   return PROTOCOL_VERSION_FAIL;
 }
 
-static void help_util(void) {
+int cli_status(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
+  return 0;
+}
+
+int cli_update(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
+  return 0;
+}
+
+int cli_watch(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
+  return 0;
+}
+
+int cli_log(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
+  return 0;
+}
+
+static inline void help_util(void) {
   printf("Usage: workaholic <command> [options]\n"
          "\n"
          "  status [peripheral]                        Show connection, "

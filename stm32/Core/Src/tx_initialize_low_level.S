@@ -60,7 +60,7 @@
     .global     __tx_PendSVHandler                  @ PendSV
     .global     __tx_SysTickHandler                 @ SysTick
     .global     __tx_IntHandler                     @ Int 0
-    .global     g_pfnVectors
+    .global     __Vectors
 #ifdef USE_DYNAMIC_MEMORY_ALLOCATION
     .global     Image$$RW_IRAM1$$ZI$$Limit
 #endif
@@ -136,13 +136,13 @@ _tx_initialize_low_level:
 @    /* Setup Vector Table Offset Register.  */
 @
     MOV     r0, #0xE000E000                         @ Build address of NVIC registers
-    LDR     r1, =g_pfnVectors                          @ Pickup address of vector table
+    LDR     r1, =__Vectors                          @ Pickup address of vector table
     STR     r1, [r0, #0xD08]                        @ Set vector table address
 @
 @    /* Set system stack pointer from vector value.  */
 @
     LDR     r0, =_tx_thread_system_stack_ptr        @ Build address of system stack pointer
-    LDR     r1, =g_pfnVectors                          @ Pickup address of vector table
+    LDR     r1, =__Vectors                          @ Pickup address of vector table
     LDR     r1, [r1]                                @ Pickup reset stack pointer
     STR     r1, [r0]                                @ Save system stack pointer
 @

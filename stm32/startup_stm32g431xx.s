@@ -31,6 +31,8 @@
 	.thumb
 
 .global	g_pfnVectors
+.global __Vectors
+.equ __Vectors, g_pfnVectors
 .global	Default_Handler
 
 /* start address for the initialization values of the .data section.
