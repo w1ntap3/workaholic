@@ -18,7 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "app_threadx.h"
+#include "stm32g4xx_hal.h"
+#include "stm32g4xx_hal_uart.h"
+#include <stdint.h>
+#include <string.h>
+// #include "app_threadx.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -46,8 +50,11 @@ COM_InitTypeDef BspCOMInit;
 
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_rx;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
+uint8_t test_payload[] = {'H', 'e', 'l', 'l', 'a', '\r', '\n'};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -96,24 +103,10 @@ int main(void) {
   MX_DMA_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  const uint8_t *mystring = (uint8_t *)"testing tx for my thingy\r\n";
   /* USER CODE END 2 */
 
-  /* Initialize leds */
-  BSP_LED_Init(LED_GREEN);
-
-  /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity
-   */
-  BspCOMInit.BaudRate = 115200;
-  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
-  BspCOMInit.StopBits = COM_STOPBITS_1;
-  BspCOMInit.Parity = COM_PARITY_NONE;
-  BspCOMInit.HwFlowCtl = COM_HWCONTROL_NONE;
-  if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE) {
-    Error_Handler();
-  }
-
-  MX_ThreadX_Init();
+  // MX_ThreadX_Init();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -121,7 +114,11 @@ int main(void) {
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* USER CODE END WHILE */
-
+    if (huart2.gState == HAL_UART_STATE_READY) {
+      HAL_UART_Transmit_DMA(&huart2, mystring, strlen((char *)mystring));
+    } else {
+    }
+    HAL_Delay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -227,9 +224,9 @@ static void MX_DMA_Init(void) {
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMAMUX_OVR_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMAMUX_OVR_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMAMUX_OVR_IRQn);
+  /* DMA1_Channel2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
 }
 
 /**
@@ -252,7 +249,6 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
-
 /* USER CODE END 4 */
 
 /**
