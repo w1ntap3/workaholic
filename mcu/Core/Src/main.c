@@ -18,11 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "app_threadx.h"
+#include "stm32g431xx.h"
 #include "stm32g4xx_hal.h"
 #include "stm32g4xx_hal_uart.h"
 #include <stdint.h>
-#include <string.h>
-// #include "app_threadx.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -36,7 +36,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -53,8 +52,6 @@ DMA_HandleTypeDef hdma_usart2_rx;
 DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
-uint8_t test_payload[] = {'H', 'e', 'l', 'l', 'a', '\r', '\n'};
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -103,10 +100,9 @@ int main(void) {
   MX_DMA_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  const uint8_t *mystring = (uint8_t *)"testing tx for my thingy\r\n";
   /* USER CODE END 2 */
 
-  // MX_ThreadX_Init();
+  MX_ThreadX_Init();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -114,11 +110,6 @@ int main(void) {
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* USER CODE END WHILE */
-    if (huart2.gState == HAL_UART_STATE_READY) {
-      HAL_UART_Transmit_DMA(&huart2, mystring, strlen((char *)mystring));
-    } else {
-    }
-    HAL_Delay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

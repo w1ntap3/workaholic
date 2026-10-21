@@ -3,10 +3,10 @@ CompileFlags:
   Add:
     - --target=arm-none-eabi
     - -DSTM32G431xx
-    - -I/home/wintape/javid/repos/workaholic/stm32/Core/Inc
-    - -I/home/wintape/javid/repos/workaholic/stm32/Drivers/STM32G4xx_HAL_Driver/Inc
-    - -I/home/wintape/javid/repos/workaholic/stm32/Drivers/CMSIS/Device/ST/STM32G4xx/Include
-    - -I/home/wintape/javid/repos/workaholic/stm32/Drivers/CMSIS/Include
+    - -I/home/wintape/javid/repos/workaholic/mcu/Core/Inc
+    - -I/home/wintape/javid/repos/workaholic/mcu/Drivers/STM32G4xx_HAL_Driver/Inc
+    - -I/home/wintape/javid/repos/workaholic/mcu/Drivers/CMSIS/Device/ST/STM32G4xx/Include
+    - -I/home/wintape/javid/repos/workaholic/mcu/Drivers/CMSIS/Include
   Remove:
     - -mthumb
     - -fno-builtin

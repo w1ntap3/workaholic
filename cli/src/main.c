@@ -1,15 +1,13 @@
+#include "protocol.h"
+#include <fcntl.h>
 #include <getopt.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 // DEFINES (start)
-#define CLI_VERSION "v0.0.0 (init)"
-#define CLI_PROTOCOL_VERSION "not developed"
-
-#define VERSION_STRING_BUFFER 64
-
 typedef enum {
   PROTOCOL_VERSION_MATCH = 0,
   PROTOCOL_VERSION_FAIL,
@@ -30,17 +28,14 @@ static inline void help_util(void);
 int cli_status(int argc, char *argv[]);
 int cli_update(int argc, char *argv[]);
 int cli_watch(int argc, char *argv[]);
-int cli_log(int argc, char *argv[]);
 // PF (end)
 
 // PV (start)
 static const struct {
   const char *cmd_name;
   int (*cmd_handler)(int, char **);
-} cmd_table[] = {{"status", cli_status},
-                 {"update", cli_update},
-                 {"watch", cli_watch},
-                 {"log", cli_log}};
+} cmd_table[] = {
+    {"status", cli_status}, {"update", cli_update}, {"watch", cli_watch}};
 // PV (end)
 
 // static const struct commands
@@ -57,7 +52,7 @@ int main(int argc, char *argv[]) {
   }
   if ((strcmp(argv[1], "--version") == 0) ||
       (strcmp(argv[1], "version") == 0)) {
-    return cli_version();
+    return pr_version();
   }
   if (strcmp(argv[1], "health") == 0) {
     return cli_health(argc);
@@ -94,8 +89,9 @@ int cli_version(void) {
   printf("CLI version: %s\n", CLI_VERSION);
 
   // Request the firmware version from the MCU
-  char firmware_version[VERSION_STRING_BUFFER];
-  int ret = get_firmware_version(firmware_version, (int)VERSION_STRING_BUFFER);
+  char firmware_version[PR_VERSION_STRING_BUFFER];
+  int ret =
+      get_firmware_version(firmware_version, (int)PR_VERSION_STRING_BUFFER);
   if (ret == 0) {
     printf("Firmware version: %s\n", firmware_version);
   } else {
@@ -104,8 +100,8 @@ int cli_version(void) {
   }
 
   // Compare the assumed protocol version of the CLI vs MCU's
-  char protocol_version[VERSION_STRING_BUFFER];
-  ret = get_protocol_version(protocol_version, VERSION_STRING_BUFFER);
+  char protocol_version[PR_VERSION_STRING_BUFFER];
+  ret = get_protocol_version(protocol_version, PR_VERSION_STRING_BUFFER);
   switch (ret) {
   case PROTOCOL_VERSION_MATCH:
     printf("Protocol version: %s\n", protocol_version);
@@ -142,6 +138,17 @@ cli_ret_t get_protocol_version(char *protocol_version, int buf) {
 int cli_status(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
+  int file_d = open(USART_FILESTREAM, O_RDONLY);
+  char byte_buffer[128];
+  memset(byte_buffer, 0, 128);
+  read(file_d, byte_buffer, 128);
+
+  printf("{");
+
+  for (int i = 0; i < 128; i++) {
+    printf("%c,", byte_buffer[i]);
+  }
+  printf("}\n");
   return 0;
 }
 
@@ -152,12 +159,6 @@ int cli_update(int argc, char *argv[]) {
 }
 
 int cli_watch(int argc, char *argv[]) {
-  (void)argc;
-  (void)argv;
-  return 0;
-}
-
-int cli_log(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
   return 0;
@@ -174,8 +175,6 @@ static inline void help_util(void) {
          "settings (e.g. --name, --min, --max)\n"
          "  watch                                      Stream peripheral "
          "events until interrupted\n"
-         "  log [count]                                Show the last [count] "
-         "logged events\n"
          "  --version                                  Show CLI, firmware and "
          "protocol versions\n"
          "  --help                                     Show this message\n"
@@ -185,6 +184,5 @@ static inline void help_util(void) {
          "  workaholic status temp\n"
          "  workaholic update temp --min 0 --max 100 --name \"Temperature "
          "Sensor\"\n"
-         "  workaholic watch\n"
-         "  workaholic log 2\n");
+         "  workaholic watch\n");
 }
