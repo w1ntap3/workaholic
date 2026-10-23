@@ -2,60 +2,45 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
-// DEFINES (start)
-typedef enum {
-  PROTOCOL_VERSION_MATCH = 0,
-  PROTOCOL_VERSION_FAIL,
-  PROTOCOL_VERSION_CLASH
-} cli_ret_t;
-
-// DEFINES (end)
-
 // PF (start)
-int cli_health(int argc);
-
-int cli_version(void);
-int get_firmware_version(char *firmware_version, int buf);
-cli_ret_t get_protocol_version(char *protocol_version, int buf);
-
-static inline void help_util(void);
-
 int cli_status(int argc, char *argv[]);
 int cli_update(int argc, char *argv[]);
 int cli_watch(int argc, char *argv[]);
+int cli_version(int argc, char *argv[]);
+int cli_help(int argc, char *argv[]);
 // PF (end)
 
 // PV (start)
 static const struct {
   const char *cmd_name;
   int (*cmd_handler)(int, char **);
-} cmd_table[] = {
-    {"status", cli_status}, {"update", cli_update}, {"watch", cli_watch}};
+} cmd_table[] = {{"status", cli_status},
+                 {"update", cli_update},
+                 {"watch", cli_watch},
+                 {"version", cli_version},
+                 {"help", cli_help}};
 // PV (end)
 
 // static const struct commands
 int main(int argc, char *argv[]) {
   // Not enough arguments
   if (argc < 2) {
-    fprintf(stderr, "Usage: workaholic --help\n");
+    fprintf(stderr, "Usage: workaholic help\n");
     return 1;
   }
   // Global help
-  if ((strcmp(argv[1], "--help") == 0) || (strcmp(argv[1], "help") == 0)) {
-    help_util();
-    return 0;
+  if (strcmp(argv[1], "--help") == 0) {
+    return cli_help(argc, argv);
   }
-  if ((strcmp(argv[1], "--version") == 0) ||
-      (strcmp(argv[1], "version") == 0)) {
-    return pr_version();
-  }
-  if (strcmp(argv[1], "health") == 0) {
-    return cli_health(argc);
+  if (strcmp(argv[1], "--version") == 0) {
+    return cli_version(argc, argv);
   }
 
   const char *cmd = argv[1];
@@ -70,101 +55,117 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  fprintf(stderr, "Error: No such command as \"%s\"\n", argv[1]);
+  fprintf(stderr, "Error: No such subcommand as \"%s\"\n", argv[1]);
   return 1;
 }
 
-int cli_health(int argc) {
-  if (argc >= 0) {
-    printf("workaholic cli is working.\n");
-    return 0;
-  } else {
-    printf("what...");
+// TODO: fix printfs with buffer writes and proper error handling
+static int get_health_str(const pr_health_state health, const uint8_t is_sys,
+                          char *health_str, size_t str_size) {
+  const char *str;
+  switch (health) {
+  case PR_STATE_HEALTHY:
+    str = "Healthy";
+    break;
+  case PR_STATE_DISCONNECTED:
+    str = "Disconnected";
+    break;
+  case PR_STATE_DEAD:
+    str = "Dead";
+    break;
+  case PR_STATE_WEAK:
+    str = "Weak";
+    break;
+  case PR_STATE_BELOW_RANGE:
+    str = is_sys ? "Buggy" : "Below healthy range";
+    break;
+  case PR_STATE_ABOVE_RANGE:
+    str = is_sys ? "Buggy" : "Above healthy range";
+    break;
+  default:
+    if (str_size > 0) {
+      health_str[0] = '\0';
+    }
+    return -1;
+  }
+  int result = snprintf(health_str, str_size, "%s", str);
+  if (result < 0 || (size_t)result >= str_size)
+    return -1;
+
+  return (is_sys &&
+          (health == PR_STATE_BELOW_RANGE || health == PR_STATE_ABOVE_RANGE));
+}
+
+// TODO: fix printfs with buffer writes and proper error handling
+static int get_heartbeat_str(time_t heartbeat, time_t cur_time) {
+  if (heartbeat > cur_time) {
+    printf("Bug occured, heartbeat cannot have happened in future");
     return 1;
   }
+  const uint64_t sec_ago = (uint64_t)(cur_time - heartbeat);
+  printf("%lu seconds ago", sec_ago);
+  return 0;
 }
 
-int cli_version(void) {
-  int version_ret = 0;
-  printf("CLI version: %s\n", CLI_VERSION);
-
-  // Request the firmware version from the MCU
-  char firmware_version[PR_VERSION_STRING_BUFFER];
-  int ret =
-      get_firmware_version(firmware_version, (int)PR_VERSION_STRING_BUFFER);
-  if (ret == 0) {
-    printf("Firmware version: %s\n", firmware_version);
-  } else {
-    printf("Firmware version: Failed to retrieve.\n");
-    version_ret++;
-  }
-
-  // Compare the assumed protocol version of the CLI vs MCU's
-  char protocol_version[PR_VERSION_STRING_BUFFER];
-  ret = get_protocol_version(protocol_version, PR_VERSION_STRING_BUFFER);
-  switch (ret) {
-  case PROTOCOL_VERSION_MATCH:
-    printf("Protocol version: %s\n", protocol_version);
-    break;
-  case PROTOCOL_VERSION_FAIL:
-    printf("Protocol version: Failed to retrieve.\n");
-    version_ret++;
-    break;
-  case PROTOCOL_VERSION_CLASH:
-    printf("Protocol version: Clash occured. CLI claims \"%s\" while MCU "
-           "claims \"%s\"\n",
-           CLI_PROTOCOL_VERSION, protocol_version);
-    version_ret++;
-    break;
-  }
-
-  return version_ret;
-}
-
-// TODO: implement firmware version request
-int get_firmware_version(char *firmware_version, int buf) {
-  (void)firmware_version;
-  (void)buf;
-  return 1;
-}
-
-// TODO: implement protocol version request + comparison
-cli_ret_t get_protocol_version(char *protocol_version, int buf) {
-  (void)protocol_version;
-  (void)buf;
-  return PROTOCOL_VERSION_FAIL;
+static int render_table(pr_row_per *first_row, int peripheral_count) {
+  (void)first_row;
+  (void)peripheral_count;
+  printf("ID NAME HEALTH VALUE UNIT\n");
+  return 0;
 }
 
 int cli_status(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
-  int file_d = open(USART_FILESTREAM, O_RDONLY);
-  char byte_buffer[128];
-  memset(byte_buffer, 0, 128);
-  read(file_d, byte_buffer, 128);
+  if (!argv[0]) {
+    pr_status_sys_t sys_status;
+    pr_status_sys(&sys_status);
 
-  printf("{");
+    // int ret;
+    printf("Connection: \n");
+    // get_health_str(sys_status.health, 1);
 
-  for (int i = 0; i < 128; i++) {
-    printf("%c,", byte_buffer[i]);
+    struct timespec cur_time;
+    clock_gettime(CLOCK_REALTIME, &cur_time);
+
+    printf("Last MCU heartbeat: \n");
+    // get_heartbeat_str(sys_status.heartbeat, cur_time.tv_sec);
+    printf("Uptime: \n");
+
+    printf("Peripheral table:\n");
+    render_table(sys_status.first_row, sys_status.peripheral_count);
   }
-  printf("}\n");
   return 0;
 }
 
 int cli_update(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
-  return 0;
+  return 1;
 }
 
 int cli_watch(int argc, char *argv[]) {
   (void)argc;
   (void)argv;
-  return 0;
+  // ^C to stop
+  pr_watch();
+  // shouldnt even reach this point so if it does, something is wrong
+  return 1;
 }
 
-static inline void help_util(void) {
+int cli_version(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
+  uint8_t fw, protocol;
+  char fw_str[PR_VERSION_STRING_BUFFER], protocol_str[PR_VERSION_STRING_BUFFER];
+  pr_version(&fw, &protocol, fw_str, protocol_str);
+
+  return 1;
+}
+int cli_help(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
+
   printf("Usage: workaholic <command> [options]\n"
          "\n"
          "  status [peripheral]                        Show connection, "
@@ -185,4 +186,5 @@ static inline void help_util(void) {
          "  workaholic update temp --min 0 --max 100 --name \"Temperature "
          "Sensor\"\n"
          "  workaholic watch\n");
+  return 0;
 }

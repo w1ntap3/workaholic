@@ -3,7 +3,7 @@ BIN_PATH := $(HOME)/.local/bin
 
 SRC := $(wildcard src/*.c)
 TARGET := workaholic
-FLAGS := -Wall -Wextra -O2 -Wpedantic -std=c17
+FLAGS := -Wall -Wextra -O2 -Wpedantic -std=gnu17
 
 
 path: build
